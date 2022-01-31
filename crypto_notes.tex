@@ -1,0 +1,186 @@
+\documentclass[twoside, a4paper, 10pt]{amsart}
+\title[ ]{Notes on Cryptography}
+%\usepackage{amsaddr}
+%\email{Kamil.Bulinski@minetec.com.au}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{verbatim}
+\usepackage{amsmath, amssymb}
+\usepackage{tikz}
+\usetikzlibrary{matrix, arrows}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{listings}
+\usepackage[all]{xy}
+\usepackage[pdftex,colorlinks,linkcolor=blue,citecolor=blue]{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=3cm]{geometry}
+\usepackage{bigints}
+\usepackage{dsfont}
+\setlength{\textwidth}{6.5in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\linespread{1.3}
+
+
+\setcounter{secnumdepth}{4}
+
+\begin{document}
+\maketitle
+\raggedbottom
+
+
+%% Mathcal large
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cH}{\mathcal{H}}
+\newcommand{\cI}{\mathcal{I}}
+\newcommand{\cJ}{\mathcal{J}}
+\newcommand{\cK}{\mathcal{K}}
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cM}{\mathcal{M}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\cV}{\mathcal{V}}
+\newcommand{\cW}{\mathcal{W}}
+\newcommand{\cX}{\mathcal{X}}
+\newcommand{\cY}{\mathcal{Y}}
+\newcommand{\cZ}{\mathcal{Z}}
+%% Mathbb large
+\newcommand{\bA}{\mathbb{A}}
+\newcommand{\bB}{\mathbb{B}}
+\newcommand{\bC}{\mathbb{C}}
+\newcommand{\bD}{\mathbb{D}}
+\newcommand{\bE}{\mathbb{E}}
+\newcommand{\bF}{\mathbb{F}}
+\newcommand{\bG}{\mathbb{G}}
+\newcommand{\bH}{\mathbb{H}}
+\newcommand{\bI}{\mathbb{I}}
+\newcommand{\bJ}{\mathbb{J}}
+\newcommand{\bK}{\mathbb{K}}
+\newcommand{\bL}{\mathbb{L}}
+\newcommand{\bM}{\mathbb{M}}
+\newcommand{\bN}{\mathbb{N}}
+\newcommand{\bO}{\mathbb{O}}
+\newcommand{\bP}{\mathbb{P}}
+\newcommand{\bQ}{\mathbb{Q}}
+\newcommand{\bR}{\mathbb{R}}
+\newcommand{\bS}{\mathbb{S}}
+\newcommand{\bT}{\mathbb{T}}
+\newcommand{\bU}{\mathbb{U}}
+\newcommand{\bV}{\mathbb{V}}
+\newcommand{\bW}{\mathbb{W}}
+\newcommand{\bX}{\mathbb{X}}
+\newcommand{\bY}{\mathbb{Y}}
+\newcommand{\bZ}{\mathbb{Z}}
+
+
+\newcounter{dummy} \numberwithin{dummy}{section}
+
+\theoremstyle{definition}
+\newtheorem{mydef}[dummy]{Definition}
+\newtheorem{prop}[dummy]{Proposition}
+\newtheorem{corol}[dummy]{Corollary}
+\newtheorem{thm}[dummy]{Theorem}
+\newtheorem{lemma}[dummy]{Lemma}
+\newtheorem{eg}[dummy]{Example}
+\newtheorem{notation}[dummy]{Notation}
+\newtheorem{remark}[dummy]{Remark}
+\newtheorem{claim}[dummy]{Claim}
+\newtheorem{Exercise}[dummy]{Exercise}
+\newtheorem{question}[dummy]{Question}
+\newtheorem{conjecture}[dummy]{Conjecture}
+
+
+Based on Katz-Lindell. All random variables considered discrete?
+
+\textbf{Encryption Scheme:} An encryption scheme consists of a tuple $(\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ where 
+
+\begin{itemize} 
+	\item $\operatorname{Gen}$ is a random variable with values in a set $\mathcal{K}$, called the \textit{keyspace}. 
+	\item There is a set $\mathcal{M}$, called the \textit{message space}. 
+	\item There is a set $\mathcal{C}$, each element is called a \textit{ciphertext}. 
+	\item For each $k \in \mathcal{K}$ and $m \in \mathcal{M}$ we have a random variable $\operatorname{Enc}_k(m)$ taking values in $\mathcal{C}$.
+	\item For each $k \in \mathcal{K}$, we have a map $\operatorname{Dec}_k:\mathcal{C} \to \mathcal{M}$ satisfying $$\operatorname{Dec}_k(\operatorname{Enc}_k(m)) = m \quad \text{ for all } m  \in \mathcal{M}$$. 
+
+\end{itemize}
+
+More formally, $\operatorname{Enc}_k(m): \Omega \to \mathcal{C}$ on some sample space $\Omega$. The last point means that $\operatorname{Dec}_k(\operatorname{Enc}_k(m)(\omega)) = m$ for all $\omega \in \Omega$. If $\operatorname{Enc}_k(m)$ is a constant map, we simply consider it to be a deterministic function $\operatorname{Enc}_k: \mathcal{M} \to \mathcal{C}$.
+
+\begin{eg}[Caeser cipher] In this example, we identify naturally the lowercase letters $\{a, b, \ldots, z\}$ with $\mathbb{Z}/26\bZ$. We let $\mathcal{K} = \mathbb{Z}/26\bZ$ and we let $\mathcal{M} = \mathcal{C}$ be the set of all words in the lowercase letters. We now define $\operatorname{Enc}_k(m) \in \mathcal{C}$ to be the word obtained by adding $k$ (mod 26) to each letter of $m$. So $\operatorname{Enc}_3(zac) = cdf $. So $\operatorname{Dec}_k = \operatorname{Enc}_{-k}$ is the inverse. The distribution on $\mathcal{K}$ is uniform (i.e., $\operatorname{Gen}$ takes values uniformly in $\mathcal{K}$).
+
+\end{eg}
+
+\begin{mydef}[Perfect secrecy] An encryption scheme is said to be \textit{perfectly secret} if for all $m,m' \in \mathcal{M}$ and $c \in \mathcal{C}$ we have that $$Pr(\operatorname{Enc}_k(m) = c) = Pr(\operatorname{Enc}_k(m') = c).$$ More precisely, if $P_{\mathcal{K}}$ is the distribution on $K$ and $P_{\mathcal{C},m,k}$ is the distribution on $\mathcal{C}$ induced by $\operatorname{Enc}_k(m)$ then $$\sum_{k \in K} P_{\mathcal{K}}(k) P_{\mathcal{C},k,m}(c) = \sum_{k \in K} P_{\mathcal{K}}(k) P_{\mathcal{C},k,m'}(c).$$ That is, $Pr$ refers to the probability distribution where one chooses $k \in \mathcal{K}$ randomly (according to the random variable $\operatorname{Gen}$ part of the encryption scheme) and then one runs the random variable $\operatorname{Enc}_k(m)$ to produce $c \in \mathcal{C}$. If $\operatorname{Enc}_k$ is deterministic ($\operatorname{Enc}_k(m)$ is constant for all $k,m$) then obviously $Pr$ is just $P_{\mathcal{K}}$.
+
+\end{mydef}
+
+\begin{eg}[Caeser cipher is not perfectly secret] Let $m = aa$ and $m' = ab$ and let $c = ff$. Then $Pr(\operatorname{Enc}_k(m) = c) = Pr( k = 0) = \frac{1}{26}$, i.e., the probability that $aa$ gets encoded into $ff$ happens only if $k = 5$, so with probability $\frac{1}{26}$. However $Pr(\operatorname{Enc}_k(m') = c) = 0$ because $ab$ can only be encoded into one of $ab, bc, ce, \ldots, za$.
+
+\end{eg}
+
+\begin{eg}[one time pad] Let $G$ be a finite group. We define an encryption scheme where the keyspace and namespace is $G$. The encryption is $Enc_k(m) = km$. Decryption is given by $Dec_k(m) = k^{-1}m$. The distribution on keyspace is uniform. This scheme is perfectly secret as $$Pr(Enc_k(m) = c) = Pr(km = c) = Pr(k = cm^{-1}) = \frac{1}{|G|},$$ and this expression is clearly independent of $m$ for each fixed $c$. In the literature, the one-time pad is actually defined only for the case $G = (\mathbb{Z}/2\mathbb{Z})^{\ell}$. It is called the one-time pad because one needs to generate a new key for each message, i.e., if we send two differnet messages $m$ and $m'$ then the eavesdroper can compute $Enc_k(m) + Enc_k(m') = k + m + k+ m' = m+m'$. Thus the eavesdroper can compute the XOR of two different secret messages, which can be bad. Another drawback is the lack of efficiency in that the keyspace is as large as the message space.
+
+\end{eg}
+
+\begin{mydef} Consider an encryption scheme as above. Let $\mathcal{P}_{\mathcal{M}}$ be any distribution on the message space $\mathcal{M}$. We define the induced distribution $Pr$ on $\mathcal{K} \times \mathcal{M} \times \mathcal{C}$ to be the distribution where $$Pr(K = k, M=m, C=c) = \mathcal{P}_{\mathcal{K}}(k) \mathcal{P}_{\mathcal{M}}(m) P_{\mathcal{C},k,m}(c).$$ In other words we choose $k \in \mathcal{K}$ randomly and then $m \in \mathcal{M}$ independently  and then $c \in \mathcal{C}$ is drawn according to the random variable $\operatorname{Enc}_k(m)$.
+
+\end{mydef}
+
+\begin{prop} An encryption scheme is perfectly secret if and only if for any distribution $\mathcal{P}_{\mathcal{M}}$ the induced distribution $Pr$ satisfies the property that $$Pr(M=m ~|~ C=c) = Pr(M = m) \quad \text{ for all } m \in M \text{ and } c \in C \text{ with Pr(C=c) >0} $$
+
+\end{prop}
+
+\begin{eg} Suppose we have a distribution where $\mathcal{P}_M(ab) = 0.4$ and $\mathcal{P}_M(aa) = 0.1$ and $\mathcal{P}_M(bb) = 0.5$. If we are using the Caeser cipher, then $Pr(M = ab `~|~ C = dd) = 0 \neq 0.4$ but clearly $P(C=dd) >0$. Thus the Caeser cipher is not perfectly secret.  
+
+\end{eg}
+
+\begin{mydef}[Adversary] An \text{adversary} to a given encryption scheme $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ consists of, for each $m_0,m_1 \in \mathcal{M}$ and $c \in \mathcal{C}$, a random variable $\mathcal{A}(m_0, m_1, c)$ taking values in $\{0,1\}$. For each fixed $m_0,m_1$, we define a random variable $\operatorname{PrivK}_{\mathcal{A}, \Pi}$ as follows:
+
+\begin{itemize}
+	\item Choose $k \in \mathcal{K}$ randomly according to $\operatorname{Gen}$.
+	\item Choose $b \in \{0,1\}$ uniformly randomly, then choose $c_b \in \mathcal{C}$ randomly according to $\operatorname{Enc}_k(m_b)$.
+	\item Now choose $b' \in \{0,1\}$ randomly according to $\mathcal{A}(m_0, m_1, c_b)$.
+	\item Now define $\operatorname{PrivK}_{\mathcal{A}, \Pi} = (b == b') \in \{0,1\}$.
+\end{itemize}
+
+\end{mydef}
+
+\begin{prop} An encryption scheme $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ is perfectly secret if and only if for all adversaries $\mathcal{A}$, we have that $Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) = \frac{1}{2}. $
+
+\end{prop}
+
+Intuitively, the adversary constructs any $m_0,m_1$ that they wish, they then get an assistant to randomly choose $b \in \{0,1\}$ and pass $m_b$ into the encryption scheme and get a corresponding $c_b$. The adversary then has to guess, based on this triple $m_0, m_1, c_b$ a $b' \in \{0,1\}$ and try to get $b' = b$ (they do not know $b$, only the assistant does). If they can succeed (i.e., $(b == b')$) with probability greater than $\frac{1}{2}$, then the Proposition says that the scheme is not perfect.
+
+\begin{proof}[Proof of Proposition] Note that $$ Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) = Pr(\mathcal{A} = 0 \text{ and } b = 0) + Pr(\mathcal{A} = 1 \text{ and } b = 1)$$
+
+We compute the first sum as $$Pr(\mathcal{A} = 0 \text{ and } b = 0) = \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_0}(c) Pr( \mathcal{A}(m_0, m_1,c) = 0 )$$ likewise, the second term is $$Pr(\mathcal{A} = 1 \text{ and } b = 1) = \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_1}(c) Pr( \mathcal{A}(m_0, m_1,c) = 1 )$$
+
+now using the identity  $Pr( \mathcal{A}(m_0, m_1,c) = 1 ) = 1- Pr(\mathcal{A}(m_0, m_1, c) = 0)$ we can add these two terms to get 
+$$ Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) = \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_1}(c)  + \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  Pr(\mathcal{A}(m_0, m_1,c) = 0) (P_{\mathcal{C}, k, m_0}(c) - P_{\mathcal{C}, k, m_1}(c)).  $$ The first sum is  $$\frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_1}(c) = \frac{1}{2}$$ as we are summing over the sample space of a probability measure. Now we have to show that the second sum vanishes for all $\mathcal{A}$ if and only if the scheme is perfectly secret. We rewrite this sum (ignoring the $\frac{1}{2}$ factor) as:
+
+\begin{align*} & \sum_{c \in \mathcal{C}}Pr(\mathcal{A}(m_0, m_1,c) = 0) \left( \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) P_{\mathcal{C}, k, m_0}(c) -  \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) P_{\mathcal{C}, k, m_1}(c) \right) \end{align*}
+
+By definition of perfect secrecy, the term inside is $0$, i.e., because it is $$Pr(C = c | M = m_0) - Pr(C = c | M = m_1).$$ Conversely, suppose that this whole expression is $0$ for all $\mathcal{A}$. In particular, for each fixed $c_0 \in C$, if we choose $\mathcal{A}$ so that $Pr(\mathcal{A}(m_0,m_1, c) = \mathds{1}_{\{c_0\}} (c)$ then we see that this expression is $$P(C = c_0 | M=m_0) - P(C = c_0 | M = m_1)$$ and is equal to $0$. \end{proof}
+
+\begin{prop} In a perfectly secret scheme, we have $|\mathcal{K}| \geq |\mathcal{M}|$.
+
+\end{prop}
+
+\begin{proof} Suppose for contradiction that $|\mathcal{K}| < |\mathcal{M}|$. Choose $c \in C$ such that $Pr(Enc_k(m) = c) > 0$ for some $k,m \in \mathcal{K} \times \mathcal{M}$. Now let $\mathcal{M}(c) = \{ Dec_k(c) ~|~ k \in \mathcal{K} \}$. Then clearly $|\mathcal{M}(c)| \leq |\mathcal{K}| < |\mathcal{M}|$ so we may choose $m' \notin \mathcal{M}(c)$. By perfect secrecy, we have that $Pr(Enc_k(m') = c) = Pr(Enc_k(m) = c) > 0$. This means that $Dec_k(c) = m'$ for some $k \in K$. This means $m' \in \mathcal{M}(c)$, a contradiction.\end{proof}
+
+\end{document}
