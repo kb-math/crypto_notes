@@ -108,6 +108,8 @@
 
 Based on Katz-Lindell. All random variables considered discrete?
 
+\section{Introduction and perfect secrecy}
+
 \textbf{Encryption Scheme:} An encryption scheme consists of a tuple $(\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ where 
 
 \begin{itemize} 
@@ -125,7 +127,7 @@ More formally, $\operatorname{Enc}_k(m): \Omega \to \mathcal{C}$ on some sample 
 
 \end{eg}
 
-\begin{mydef}[Perfect secrecy] An encryption scheme is said to be \textit{perfectly secret} if for all $m,m' \in \mathcal{M}$ and $c \in \mathcal{C}$ we have that $$Pr(\operatorname{Enc}_k(m) = c) = Pr(\operatorname{Enc}_k(m') = c).$$ More precisely, if $P_{\mathcal{K}}$ is the distribution on $K$ and $P_{\mathcal{C},m,k}$ is the distribution on $\mathcal{C}$ induced by $\operatorname{Enc}_k(m)$ then $$\sum_{k \in K} P_{\mathcal{K}}(k) P_{\mathcal{C},k,m}(c) = \sum_{k \in K} P_{\mathcal{K}}(k) P_{\mathcal{C},k,m'}(c).$$ That is, $Pr$ refers to the probability distribution where one chooses $k \in \mathcal{K}$ randomly (according to the random variable $\operatorname{Gen}$ part of the encryption scheme) and then one runs the random variable $\operatorname{Enc}_k(m)$ to produce $c \in \mathcal{C}$. If $\operatorname{Enc}_k$ is deterministic ($\operatorname{Enc}_k(m)$ is constant for all $k,m$) then obviously $Pr$ is just $P_{\mathcal{K}}$.
+\begin{mydef}[Perfect secrecy] An encryption scheme is said to be \textit{perfectly secret} if for all $m,m' \in \mathcal{M}$ and $c \in \mathcal{C}$ we have that $$Pr(\operatorname{Enc}_k(m) = c) = Pr(\operatorname{Enc}_k(m') = c).$$ More precisely, if $P_{\mathcal{K}}$ is the distribution on $\mathcal{K}$ and $P_{\mathcal{C},m,k}$ is the distribution on $\mathcal{C}$ induced by $\operatorname{Enc}_k(m)$ then $$\sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) P_{\mathcal{C},k,m}(c) = \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) P_{\mathcal{C},k,m'}(c).$$ That is, $Pr$ refers to the probability distribution where one chooses $k \in \mathcal{K}$ randomly (according to the random variable $\operatorname{Gen}$ part of the encryption scheme) and then one runs the random variable $\operatorname{Enc}_k(m)$ to produce $c \in \mathcal{C}$. If $\operatorname{Enc}_k$ is deterministic ($\operatorname{Enc}_k(m)$ is constant for all $k,m$) then obviously $Pr$ is just $P_{\mathcal{K}}$.
 
 \end{mydef}
 
@@ -149,7 +151,7 @@ More formally, $\operatorname{Enc}_k(m): \Omega \to \mathcal{C}$ on some sample 
 
 \end{eg}
 
-\begin{mydef}[Adversary] An \text{adversary} to a given encryption scheme $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ consists of, for each $m_0,m_1 \in \mathcal{M}$ and $c \in \mathcal{C}$, a random variable $\mathcal{A}(m_0, m_1, c)$ taking values in $\{0,1\}$. For each fixed $m_0,m_1$, we define two experiments, $\operatorname{Exp}_0$ and $\operatorname{Exp}_1$ as follows. For fixed $b \in \{0,1\}$ we define the random variable $\operatorname{Exp}_b$ by the following experiment:
+\begin{mydef}[Adversary] \label{def: adversary} An \text{adversary} to a given encryption scheme $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ consists of, for each $m_0,m_1 \in \mathcal{M}$ and $c \in \mathcal{C}$, a random variable $\mathcal{A}(m_0, m_1, c)$ taking values in $\{0,1\}$. For each fixed $m_0,m_1$, we define two experiments, $\operatorname{Exp}_0$ and $\operatorname{Exp}_1$ as follows. For fixed $b \in \{0,1\}$ we define the random variable $\operatorname{Exp}_b$ by the following experiment:
 
 \begin{enumerate}
 	\item Choose $k \in \mathcal{K}$ randomly according to $\operatorname{Gen}$.
@@ -188,12 +190,70 @@ $$ Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) = \frac{1}{2} \sum_{k \in \ma
 
 By definition of perfect secrecy, the term inside is $0$, i.e., because it is $$Pr(C = c | M = m_0) - Pr(C = c | M = m_1).$$ Conversely, suppose that this whole expression is $0$ for all $\mathcal{A}$. In particular, for each fixed $c_0 \in C$, if we choose $\mathcal{A}$ so that $Pr_{\mathcal{A}}(\mathcal{A}(m_0,m_1, c) = \mathds{1}_{\{c_0\}} (c)$ then we see that this expression is $$P(C = c_0 | M=m_0) - P(C = c_0 | M = m_1)$$ and is equal to $0$. \end{proof}
 
-\begin{prop} In a perfectly secret scheme, we have $|\mathcal{K}| \geq |\mathcal{M}|$.
+\begin{prop}\label{prop: perfect secrecy implies large keyspace} In a perfectly secret scheme, we have $|\mathcal{K}| \geq |\mathcal{M}|$.
 
 \end{prop}
 
-\begin{proof} Suppose for contradiction that $|\mathcal{K}| < |\mathcal{M}|$. Choose $c \in C$ such that $Pr(Enc_k(m) = c) > 0$ for some $k,m \in \mathcal{K} \times \mathcal{M}$. Now let $\mathcal{M}(c) = \{ Dec_k(c) ~|~ k \in \mathcal{K} \}$. Then clearly $|\mathcal{M}(c)| \leq |\mathcal{K}| < |\mathcal{M}|$ so we may choose $m' \notin \mathcal{M}(c)$. By perfect secrecy, we have that $Pr(Enc_k(m') = c) = Pr(Enc_k(m) = c) > 0$. This means that $Dec_k(c) = m'$ for some $k \in K$. This means $m' \in \mathcal{M}(c)$, a contradiction.\end{proof}
+\begin{proof} Suppose for contradiction that $|\mathcal{K}| < |\mathcal{M}|$. Choose $c \in C$ such that $Pr(Enc_k(m) = c) > 0$ for some $k,m \in \mathcal{K} \times \mathcal{M}$. Now let $\mathcal{M}(c) = \{ Dec_k(c) ~|~ k \in \mathcal{K} \}$. Then clearly $|\mathcal{M}(c)| \leq |\mathcal{K}| < |\mathcal{M}|$ so we may choose $m' \notin \mathcal{M}(c)$. By perfect secrecy, we have that $Pr(Enc_k(m') = c) = Pr(Enc_k(m) = c) > 0$. This means that $Dec_k(c) = m'$ for some $k \in \mathcal{K}$. This means $m' \in \mathcal{M}(c)$, a contradiction.\end{proof}
 
+\section{Computational Security}
 
+Proposition~\ref{prop: perfect secrecy implies large keyspace} shows that if we want perfect secrecy, then we need the keyspace $\mathcal{K}$ to be rather large, i.e., at least as large as $\mathcal{M}$. This is impractical computationally, e.g., we don't want to require a 1GB key to encrypt a 1GB file. To allow for a smaller keyspace, we will have to relax the definition of perfect secrecy to only \textit{efficient} adversaries. 
+
+\begin{mydef} A \textit{computational encryption scheme} is a tuple $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ such that
+
+\begin{itemize}
+	\item For each non-negative integer $n$, we have that $\operatorname{Gen}(n)$ is a random variable with values in a set $\mathcal{K}$ called the keyspace. We assume $\operatorname{Gen}(n)$ runs in polynomial-time in $n$ (it is a probabilistic Turing machine running in polynomial time), that is, it outputs a random key in polynomial time in $n$. We call $n$ the \textit{security parameter}.
+	\item The message space and ciphertext space is $\mathcal{M} = \mathcal{C} = \{0,1\}^*$.
+	\item For each $k \in \mathcal{K}$ and $m \in \mathcal{M}$, the random variable $\operatorname{Enc}_k(m)$ returns a ciphertext in $\mathcal{C}$ in \textit{polynomial-time}, that is, polynomial in the security parameter $n$ (and the length of $|m|$ ?). In particular, the length of the output is polynomial in $n$. (DOES THE POLYNOMIAL DEPEND ON the key $k$?)
+	\item $Dec_k:\mathcal{C} \to \mathcal{M} \cup \{ NULL \}$ is a mapping such that $Dec_k(c) = m$ for all $k, m$ and $c \in \mathcal{C}$ such that $Enc_k(m)$ returns $c$ with positive probability. It is also polynomial in its input length $m$. (It can return $NULL$ if for example $c$ is invalid, not in the output of any encryption).
+	\item We sometimes assume that $Enc_k(m)$ is only defined for messages of length $|m| = \ell(n)$ where $\ell(n)$ is a function of $n$ (can't encrypt arbitrarily long messages with a fixed security parameter $n$). If this is the case we call this a \textit{fixed-length private-key encryption scheme for messages of length $\ell(n)$}.
+\end{itemize}
+
+\end{mydef}
+
+\begin{eg} The one time pad is a fixed length private-key encryption scheme with of length $\ell(n)=n$. For each security parameter $n$, we have that $Enc_k(m) = m+k \in (\bZ/2\bZ)^n$ is defined for $m \in \{0,1\}^n = (\bZ/2\bZ)^n$. The random variable $Gen(n)$ returns a random key $k \in (\bZ/2\bZ)^n$ in polynomial time, in fact in linear time $O(n)$, as each bit can be randomly chosen in $O(1)$-time.
+
+\end{eg}
+
+We assume that our adversaries are also randomized algorithms running in Polynomial time as follows.
+
+\begin{mydef} An \textit{efficient} adversary to a computational encyrption scheme  $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ is an adversary $\mathcal{A}$ as given in Definition~\ref{def: adversary} where for each $m_0,m_1$ of the same length and $c \in \mathcal{C}$ we have that the random variable $\mathcal{A}(m_0,m_1,c)$ returns a random output in $\{0,1\}$ and it runs in polynomial time (it is polynomial in $\max\{|m_0|, |m_1|, |c|\}$).
+
+\end{mydef}
+
+We now modify the experiments $Exp_0$ and $Exp_1$ as follows.
+
+\begin{mydef} Let $\mathcal{A}$ be an efficient adversary to an encryption scheme $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$. For each fixed security parameter $n$, the adversary chooses two messages $m_0,m_1 \in \mathcal{M}$ of the same length and, in case the scheme is a fixed-length $\ell(n)$, we also require the messages to have length $|m_0| = |m_1| = \ell(n)$. We define two experiments, $\operatorname{Exp}_0$ and $\operatorname{Exp}_1$ as follows. For fixed $b \in \{0,1\}$ we define the random variable $\operatorname{Exp}_b$ by the following experiment:
+
+\begin{enumerate}
+	\item Choose $k \in \mathcal{K}$ randomly according to $\operatorname{Gen}(n)$.
+	\item Choose $c_b \in \mathcal{C}$ randomly according to $\operatorname{Enc}_k(m_b)$.
+	\item Now send $c_b$ to the adversary. They then choose $b' \in \{0,1\}$ randomly according to $\mathcal{A}(m_0, m_1, c_b)$.
+	\item Now define $\operatorname{Exp}_b \in \{0,1\}$ to be $1$ if $b = b'$ and $0$ if $b \neq b'$.
+\end{enumerate}
+
+ For such fixed $m_0,m_1$ and $n$, we define a random variable $\operatorname{PrivK}_{\mathcal{A}, \Pi}$ as follows:
+
+\begin{enumerate}
+	\item Choose $b \in \{0,1\}$ uniformly randomly.
+	\item Run $\operatorname{Exp}_b$ as above.
+	\item Now define $\operatorname{PrivK}_{\mathcal{A}, \Pi} \in \{0,1\}$ to be the result of $\operatorname{Exp}_b$.
+
+\end{enumerate}
+
+\end{mydef}
+
+Thus the difference now is that there are constraints on what messages $m_0$ and $m_1$ may choose and they depend on the (known) security parameter $n$. This is to ensure that the adversary can't trivially "win" just by looking at the text length of $m_0$, $m_1$ and $c_b$. That is, text-length is not securely hidden by the encryption scheme.
+
+\begin{mydef} A function $f:\bZ_{\geq 0} \to \bR_{>0}$ is said to be negligible if for all $c>0$ there exists $N>0$ such that for all $n>N$ we have $f(n) < n^{-c}$.
+
+\end{mydef}
+
+For instance $2^{-n}$ is negligible.
+
+\begin{mydef} We say that a computational encryption scheme is \textit{EAV-secure} if for all efficient adversaries there exists a negligible function $negl:\bZ_{\geq 0} \to \bR_{>0}$ such that $$\left | Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) - \frac{1}{2} \right | < negl(n), $$ where $n$ denotes the security parameter (note that $\operatorname{PrivK}_{\mathcal{A}, \Pi}$ is a random variable for each fixed security parameter $n$).
+
+\end{mydef}
 
 \end{document}
