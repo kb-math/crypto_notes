@@ -151,16 +151,16 @@ More formally, $\operatorname{Enc}_k(m): \Omega \to \mathcal{C}$ on some sample 
 
 \end{eg}
 
-\begin{mydef}[Adversary] \label{def: adversary} An \text{adversary} to a given encryption scheme $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ consists of, for each $m_0,m_1 \in \mathcal{M}$ and $c \in \mathcal{C}$, a random variable $\mathcal{A}(m_0, m_1, c)$ taking values in $\{0,1\}$. For each fixed $m_0,m_1$, we define two experiments, $\operatorname{Exp}_0$ and $\operatorname{Exp}_1$ as follows. For fixed $b \in \{0,1\}$ we define the random variable $\operatorname{Exp}_b$ by the following experiment:
+\begin{mydef}[Adversary] \label{def: adversary} An \text{adversary} to a given encryption scheme $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ consists of a tuple $(\mathcal{A}, m_0, m_1)$ where $m_0,m_1 \in \mathcal{M}$ and for each $c \in \mathcal{C}$ $\mathcal{A}(c)$ is a random variable taking values in $\{0,1\}$. Given this adversary, we define two experiments, $\operatorname{Exp}_0$ and $\operatorname{Exp}_1$ as follows. For fixed $b \in \{0,1\}$ we define the random variable $\operatorname{Exp}_b$ by the following experiment:
 
 \begin{enumerate}
 	\item Choose $k \in \mathcal{K}$ randomly according to $\operatorname{Gen}$.
 	\item Choose $c_b \in \mathcal{C}$ randomly according to $\operatorname{Enc}_k(m_b)$.
-	\item Now send $c_b$ to the adversary. They then choose $b' \in \{0,1\}$ randomly according to $\mathcal{A}(m_0, m_1, c_b)$.
+	\item Now send $c_b$ to the adversary. They then choose $b' \in \{0,1\}$ randomly according to $\mathcal{A}(c_b)$.
 	\item Now define $\operatorname{Exp}_b \in \{0,1\}$ to be $1$ if $b = b'$ and $0$ if $b \neq b'$.
 \end{enumerate}
 
- For each fixed $m_0,m_1$, we define a random variable $\operatorname{PrivK}_{\mathcal{A}, \Pi}$ as follows:
+We now define a random variable $\operatorname{PrivK}_{\mathcal{A}, \Pi}$ as follows:
 
 \begin{enumerate}
 	\item Choose $b \in \{0,1\}$ uniformly randomly.
@@ -175,20 +175,20 @@ More formally, $\operatorname{Enc}_k(m): \Omega \to \mathcal{C}$ on some sample 
 
 \end{prop}
 
-Intuitively, the adversary constructs any $m_0,m_1$ that they wish, they then get an assistant to randomly choose $b \in \{0,1\}$ and pass $m_b$ into the encryption scheme and get a corresponding $c_b$. The adversary then has to guess, based on this triple $m_0, m_1, c_b$ a $b' \in \{0,1\}$ and try to get $b' = b$ (they do not know $b$, only the assistant does). If they can succeed (i.e., $(b == b')$) with probability greater than $\frac{1}{2}$, then the Proposition says that the scheme is not perfect.
+Intuitively, the adversary constructs any $m_0,m_1$ that they wish, they then pass $(m_0,m_1)$ to a \textit{challenger} who randomly choose $b \in \{0,1\}$ and passes $m_b$ into the encryption scheme and gets a corresponding $c_b$. The challenger then sends back $c_b$ to the adversary (but it doesn't send back $b$). The adversary then has to guess, based on this triple $m_0, m_1, c_b$ a $b' \in \{0,1\}$ and try to get $b' = b$ (they do not know $b$, only the challenger does). If they can succeed (i.e., $(b == b')$) with probability greater than $\frac{1}{2}$ (better than just a random guess), then the Proposition says that the scheme is not perfect.
 
-To avoid confusing the different probabilitities, we let $$Pr_{\mathcal{A}}(\mathcal{A}(m_0,m_1, c) = b')$$ denote the probability that $\mathcal{A}(m_0,m_1,c) = b'$ where $m_0,m_1,c$ are \textbf{fixed} (so here randomness is purely dicated by the adversary $\mathcal{A}$ and not the experiment). While $$Pr_{\operatorname{Exp}_b} (\mathcal{A} = b')$$ denotes the probability that $\mathcal{A}$ returns $b'$ in $\operatorname{Exp}_b$.
+To avoid confusing the different probabilitities, we let $$Pr_{\mathcal{A}}(\mathcal{A}( c) = b')$$ denote the probability that $\mathcal{A}(c) = b'$ where $m_0,m_1,c$ are \textbf{fixed} (so here randomness is purely dicated by the adversary $\mathcal{A}$ and not the experiment). While $$Pr_{\operatorname{Exp}_b} (\mathcal{A} = b')$$ denotes the probability that $\mathcal{A}$ returns $b'$ in $\operatorname{Exp}_b$.
 
 \begin{proof}[Proof of Proposition] Note that $$ Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) = \frac{1}{2} Pr_{\operatorname{Exp}_0} (\mathcal{A} = 0) + \frac{1}{2} Pr_{\operatorname{Exp}_1}(\mathcal{A} = 1)$$
 
-We compute the first term as $$\frac{1}{2} Pr_{\operatorname{Exp}_0} (\mathcal{A} = 0) = \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_0}(c) Pr_{\mathcal{A}}( \mathcal{A}(m_0, m_1,c) = 0 )$$ likewise, the second term is $$\frac{1}{2} Pr_{\operatorname{Exp}_1}(\mathcal{A} = 1) = \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_1}(c) Pr_{\mathcal{A}}( \mathcal{A}(m_0, m_1,c) = 1 )$$
+We compute the first term as $$\frac{1}{2} Pr_{\operatorname{Exp}_0} (\mathcal{A} = 0) = \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_0}(c) Pr_{\mathcal{A}}( \mathcal{A}(c) = 0 )$$ likewise, the second term is $$\frac{1}{2} Pr_{\operatorname{Exp}_1}(\mathcal{A} = 1) = \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_1}(c) Pr_{\mathcal{A}}( \mathcal{A}(c) = 1 )$$
 
-now using the identity  $Pr_{\mathcal{A}}( \mathcal{A}(m_0, m_1,c) = 1 ) = 1- Pr_{\mathcal{A}}(\mathcal{A}(m_0, m_1, c) = 0)$ we can add these two terms to get 
-$$ Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) = \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_1}(c)  + \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  Pr_{\mathcal{A}}(\mathcal{A}(m_0, m_1,c) = 0) (P_{\mathcal{C}, k, m_0}(c) - P_{\mathcal{C}, k, m_1}(c)).  $$ The first sum is  $$\frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_1}(c) = \frac{1}{2}$$ as we are summing over the sample space of a probability measure. Now we have to show that the second sum vanishes for all $\mathcal{A}$ if and only if the scheme is perfectly secret. We rewrite this sum (ignoring the $\frac{1}{2}$ factor) as:
+now using the identity  $Pr_{\mathcal{A}}( \mathcal{A}(c) = 1 ) = 1- Pr_{\mathcal{A}}(\mathcal{A}( c) = 0)$ we can add these two terms to get 
+$$ Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) = \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_1}(c)  + \frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  Pr_{\mathcal{A}}(\mathcal{A}(c) = 0) (P_{\mathcal{C}, k, m_0}(c) - P_{\mathcal{C}, k, m_1}(c)).  $$ The first sum is  $$\frac{1}{2} \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) \sum_{c \in \mathcal{C}}  P_{\mathcal{C}, k, m_1}(c) = \frac{1}{2}$$ as we are summing over the sample space of a probability measure. Now we have to show that the second sum vanishes for all $\mathcal{A}$ if and only if the scheme is perfectly secret. We rewrite this sum (ignoring the $\frac{1}{2}$ factor) as:
 
-\begin{align*} & \sum_{c \in \mathcal{C}}Pr_{\mathcal{A}}(\mathcal{A}(m_0, m_1,c) = 0) \left( \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) P_{\mathcal{C}, k, m_0}(c) -  \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) P_{\mathcal{C}, k, m_1}(c) \right) \end{align*}
+\begin{align*} & \sum_{c \in \mathcal{C}}Pr_{\mathcal{A}}(\mathcal{A}(c) = 0) \left( \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) P_{\mathcal{C}, k, m_0}(c) -  \sum_{k \in \mathcal{K}} P_{\mathcal{K}}(k) P_{\mathcal{C}, k, m_1}(c) \right) \end{align*}
 
-By definition of perfect secrecy, the term inside is $0$, i.e., because it is $$Pr(C = c | M = m_0) - Pr(C = c | M = m_1).$$ Conversely, suppose that this whole expression is $0$ for all $\mathcal{A}$. In particular, for each fixed $c_0 \in C$, if we choose $\mathcal{A}$ so that $Pr_{\mathcal{A}}(\mathcal{A}(m_0,m_1, c) = \mathds{1}_{\{c_0\}} (c)$ then we see that this expression is $$P(C = c_0 | M=m_0) - P(C = c_0 | M = m_1)$$ and is equal to $0$. \end{proof}
+By definition of perfect secrecy, the term inside is $0$, i.e., because it is $$Pr(C = c | M = m_0) - Pr(C = c | M = m_1).$$ Conversely, suppose that this whole expression is $0$ for all $\mathcal{A}$. In particular, for each fixed $c_0 \in C$, if we choose $\mathcal{A}$ so that $Pr_{\mathcal{A}}(\mathcal{A}( c) = \mathds{1}_{\{c_0\}} (c)$ then we see that this expression is $$P(C = c_0 | M=m_0) - P(C = c_0 | M = m_1)$$ and is equal to $0$. \end{proof}
 
 \begin{prop}\label{prop: perfect secrecy implies large keyspace} In a perfectly secret scheme, we have $|\mathcal{K}| \geq |\mathcal{M}|$.
 
@@ -205,9 +205,10 @@ Proposition~\ref{prop: perfect secrecy implies large keyspace} shows that if we 
 \begin{itemize}
 	\item For each non-negative integer $n$, we have that $\operatorname{Gen}(n)$ is a random variable with values in a set $\mathcal{K}$ called the keyspace. We assume $\operatorname{Gen}(n)$ runs in polynomial-time in $n$ (it is a probabilistic Turing machine running in polynomial time), that is, it outputs a random key in polynomial time in $n$. We call $n$ the \textit{security parameter}.
 	\item The message space and ciphertext space is $\mathcal{M} = \mathcal{C} = \{0,1\}^*$.
-	\item For each $k \in \mathcal{K}$ and $m \in \mathcal{M}$, the random variable $\operatorname{Enc}_k(m)$ returns a ciphertext in $\mathcal{C}$ in \textit{polynomial-time}, that is, polynomial in the security parameter $n$ (and the length of $|m|$ ?). In particular, the length of the output is polynomial in $n$. (DOES THE POLYNOMIAL DEPEND ON the key $k$?)
+	\item For each security parameter $n$, we have a subset of $\mathcal{M}$ that we call the set of \textit{$n$-encryptable} messages.
+	\item For each $k \in \mathcal{K}$ and $n$-encryptable $m \in \mathcal{M}$, the random variable $\operatorname{Enc}_k(m)$ returns a ciphertext in $\mathcal{C}$ in \textit{polynomial-time}, that is, polynomial in the security parameter $n$ (and the length of $|m|$ ?). In particular, the length of the output is polynomial in $n$. (DOES THE POLYNOMIAL DEPEND ON the key $k$?)
 	\item $Dec_k:\mathcal{C} \to \mathcal{M} \cup \{ NULL \}$ is a mapping such that $Dec_k(c) = m$ for all $k, m$ and $c \in \mathcal{C}$ such that $Enc_k(m)$ returns $c$ with positive probability. It is also polynomial in its input length $m$. (It can return $NULL$ if for example $c$ is invalid, not in the output of any encryption).
-	\item We sometimes assume that $Enc_k(m)$ is only defined for messages of length $|m| = \ell(n)$ where $\ell(n)$ is a function of $n$ (can't encrypt arbitrarily long messages with a fixed security parameter $n$). If this is the case we call this a \textit{fixed-length private-key encryption scheme for messages of length $\ell(n)$}.
+	\item We sometimes assume that $Enc_k(m)$ is only defined for messages of length $|m| = \ell(n)$ where $\ell(n)$ is a function of $n$ (can't encrypt arbitrarily long messages with a fixed security parameter $n$). If this is the case we call this a \textit{fixed-length private-key encryption scheme for messages of length $\ell(n)$}. Basically it means that if $m$ is $n$-encryptable then it must have length $\ell(n)$.
 \end{itemize}
 
 \end{mydef}
@@ -218,18 +219,26 @@ Proposition~\ref{prop: perfect secrecy implies large keyspace} shows that if we 
 
 We assume that our adversaries are also randomized algorithms running in Polynomial time as follows.
 
-\begin{mydef} An \textit{efficient} adversary to a computational encyrption scheme  $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ is an adversary $\mathcal{A}$ as given in Definition~\ref{def: adversary} where for each $m_0,m_1$ of the same length and $c \in \mathcal{C}$ we have that the random variable $\mathcal{A}(m_0,m_1,c)$ returns a random output in $\{0,1\}$ and it runs in polynomial time (it is polynomial in $\max\{|m_0|, |m_1|, |c|\}$).
+\begin{mydef} An \textit{efficient adversary} to a computational encyrption scheme  $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ conists of, for each non-negative integer $n$, a tuple $(m_0(n), m_1(n), \mathcal{A}(n))$ satisfying the following.
+
+\begin{itemize}
+	\item Each $m_0(n),m_1(n)$ are messages in $\mathcal{M}$ computable in time polynomial in $n$ and of the same length.
+	\item For each $c \in \mathcal{C}$ we have that a random variable $\mathcal{A}(n)(c)$ that returns a random output in $\{0,1\}$ and it runs in polynomial time (it is polynomial in $\max\{n, |c|\}$).
+	\item If $\Pi$ is a fixed-length private-key encryption scheme of length $\ell(n)$, then $|m_0(n)|=|m_1(n)| = \ell(n)$.
+\end{itemize}
 
 \end{mydef}
 
+\textbf{Warning! An upcomming abuse of language:} For the same of simplicity of notation, we supress the parameter $n$ and denote $m_b(n)$ by $m_0$ (for $b=0,1$) etc. We also abuse the language by calling $\mathcal{A}$ the adversary (even though it also depends on $m_0,m_1$, again this is implicit suppressed data... it's just like when we say that $X$ is a topological space rather than a tuple $(X,\tau)$).
+
 We now modify the experiments $Exp_0$ and $Exp_1$ as follows.
 
-\begin{mydef} Let $\mathcal{A}$ be an efficient adversary to an encryption scheme $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$. For each fixed security parameter $n$, the adversary chooses two messages $m_0,m_1 \in \mathcal{M}$ of the same length and, in case the scheme is a fixed-length $\ell(n)$, we also require the messages to have length $|m_0| = |m_1| = \ell(n)$. We define two experiments, $\operatorname{Exp}_0$ and $\operatorname{Exp}_1$ as follows. For fixed $b \in \{0,1\}$ we define the random variable $\operatorname{Exp}_b$ by the following experiment:
+\begin{mydef} Let $(m_0, m_1,\mathcal{A})$ be an efficient adversary to an encryption scheme $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$. For each fixed security parameter $n$, the adversary chooses two messages $m_0 = m_0(n)$ and $m_1 = m_1(n)$ in $\mathcal{M}$ of the same length and, in case the scheme is a fixed-length $\ell(n)$, we also require the messages to have length $|m_0| = |m_1| = \ell(n)$. We define two experiments, $\operatorname{Exp}_0$ and $\operatorname{Exp}_1$ as follows. For fixed $b \in \{0,1\}$ we define the random variable $\operatorname{Exp}_b$ by the following experiment:
 
 \begin{enumerate}
 	\item Choose $k \in \mathcal{K}$ randomly according to $\operatorname{Gen}(n)$.
 	\item Choose $c_b \in \mathcal{C}$ randomly according to $\operatorname{Enc}_k(m_b)$.
-	\item Now send $c_b$ to the adversary. They then choose $b' \in \{0,1\}$ randomly according to $\mathcal{A}(m_0, m_1, c_b)$.
+	\item Now send $c_b$ to the adversary. They then choose $b' \in \{0,1\}$ randomly according to $\mathcal{A}( c_b)$.
 	\item Now define $\operatorname{Exp}_b \in \{0,1\}$ to be $1$ if $b = b'$ and $0$ if $b \neq b'$.
 \end{enumerate}
 
@@ -252,8 +261,35 @@ Thus the difference now is that there are constraints on what messages $m_0$ and
 
 For instance $2^{-n}$ is negligible.
 
-\begin{mydef} We say that a computational encryption scheme is \textit{EAV-secure} if for all efficient adversaries there exists a negligible function $negl:\bZ_{\geq 0} \to \bR_{>0}$ such that $$\left | Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) - \frac{1}{2} \right | < negl(n), $$ where $n$ denotes the security parameter (note that $\operatorname{PrivK}_{\mathcal{A}, \Pi}$ is a random variable for each fixed security parameter $n$).
+\begin{mydef} We say that a computational encryption scheme is \textit{EAV-secure} if for all efficient adversaries $\mathcal{A}$ there exists a negligible function $negl:\bZ_{\geq 0} \to \bR_{>0}$ such that $$\left | Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) - \frac{1}{2} \right | < negl(n), $$ where $n$ denotes the security parameter (note that $\operatorname{PrivK}_{\mathcal{A}, \Pi}$ is a random variable for each fixed security parameter $n$).
 
 \end{mydef}
+
+In other words, we now do not require the adversary to be no better than a random guess, we just require it to be at most negligibly better than a random guess when running a polynomial time guessing algorithm. We denote the quantity above by  $$SSAdv^*(\mathcal{A}, \Pi) := \left | Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) - \frac{1}{2} \right |.$$ This notation is used by Boneh-Shoup and the $SSAdv^*$ refers to the term \textit{Semantic Security Advantage} of the adversary $\mathcal{A}$ for the encryption scheme $\Pi$. Semantic Security is another term for EAV security. We define $$SSAdv(\mathcal{A}, \Pi) = \left | Pr_{\operatorname{Exp}_0}(\mathcal{A} = 1) - Pr_{\operatorname{Exp}_1}(\mathcal{A} = 1) \right |. $$ It is easy to show that $$SSAdv^*(\mathcal{A}, \Pi) = \frac{1}{2} \cdot SSAdv(\mathcal{A}, \Pi),$$ thus we could use $SSAdv$ instead of $SSAdv^*$ in the definition of EAV-secure.
+
+\subsection{Some consequences of EAV-security}
+
+Suppose that we have a computational encryption scheme $\Pi = (Gen, Enc, Dec)$ that is EAV-secure. Let us show that it cannot be hacked by an efficient hacker as follows. Suppose that $\mathcal{H}$ is the hacker's function that attempts to discover the original message $m$ based purely on the encrypted ciphertext $c$ . More formally, for each $c \in \mathcal{C}$ and security parameter $n$ we have a random variable $\mathcal{H}_n(c)$ that returns in polynomial time (polynomial in $n$ and $|c|$) an element in $\mathcal{M}$. Thus $\mathcal{H}_n(c)$ is what the hacker thinks is $m$, based on the encrypted ciphertext $c$ (the security parameter $n$ is public knowledege?). We can't expect $\mathcal{H}$ to never succeed, it could be a constant function $\mathcal{H}(c) = ``hello"$ independent of $c$ and thus it is a broken clock that is somtimes right, especially if $``hello"$ is a popular word. What we want is the probability of success to be very small for a random message $\mathcal{M}$ for any probability distribution on $\mathcal{M}$ that does not have very popular words (e.g., uniform across a large subset of $\mathcal{M}$).
+
+\begin{prop} Suppose that we have, for each security parameter $n$, a probability $P_{\mathcal{M}}$ on $\mathcal{M}$ that is supported on the $n$-encryptable messages and is samplable in time that is polynomial in $n$ (there is a polynomial time random algorithm generating this distribution). Let $\epsilon>0$ such that $P_{\mathcal{M}}(m) < \epsilon$ for all  $m \in \mathcal{M}$. Assuming that our encryption scheme is EAV-secure, we must have $$Pr(\mathcal{H}_n(Enc_k(m)) = m) < \epsilon + negl(n)$$ for some negligible function $negl$, where $n$ is the security parameter of the encryption scheme. 
+
+\end{prop}
+
+More formally, for each security parameter $n$ the $Pr$ is a distribution on $\mathcal{M} \times \mathcal{K} \times \mathcal{C} \times \mathcal{M}$. That is, we choose randomly according to $\mathcal{M}$ the message $m$, then randomly choose a key $k$ (using the encryption scheme's $Gen(n)$) followed by choosing $c = Enc_k(m)$ (the $Enc_k(m)$ could have a random output $c$) and then having the hacker choose $m' = \mathcal{H}_n(c)$ (also randomly). In this case $Pr((m,k,c,m'))$ is the probability for getting those particular $m,k,c,m'$ in this process.
+
+\begin{proof}[Proof of Proposition] We use the hacker $\mathcal{H}_n$ to construct an adversary as defined in EAV-security and then use that to derive the bound. Given $n$-encryptable messages $m_0$ and $m_1$ we define an adversary $\mathcal{A}(c)$ which outputs the bit $b' \in \{0,1\}$ equal to $1$ if $\mathcal{H}_n(c) = m_1$ and it outputs $0$ otherwise. We now compute the $SSAdv$ of this adversary. By definition
+
+$$Pr_{Exp_1} (\mathcal{A} = 1) =  Pr(\mathcal{H} (Enc_k(m_1)) = m_1)$$ where in this $Pr$ the $m_1$ is fixed.
+
+On the other hand, $$Pr_{Exp_0} (\mathcal{A} = 1) = Pr(\mathcal{H} (Enc_k(m_0)) = m_1).$$ This means that $$SSAdv(\mathcal{A}_{m_0, m_1}, \Pi) = \left| Pr(\mathcal{H} (Enc_k(m_1)) = m_1) - Pr(\mathcal{H} (Enc_k(m_0)) = m_1) \right|.$$ Thus we have a bound $$Pr(\mathcal{H} (Enc_k(m_1)) = m_1) \leq SSAdv + Pr(\mathcal{H} (Enc_k(m_0)) = m_1). $$
+
+We now integrate this bound over $m_1 \in \mathcal{M}$ to get
+
+\begin{align*} \sum_{m_1} P_{\mathcal{M}} (m_1) Pr(\mathcal{H} (Enc_k(m_1)) = m_1)  & \leq \max_{m_1 \in \mathcal{M}} SSAdv + \sum_{m_1} P_{\mathcal{M}} (m_1) Pr(\mathcal{H} (Enc_k(m_0)) = m_1)   \\ & \leq \max_{m_1 \in \mathcal{M}} SSAdv + \epsilon \sum_{m_1} Pr(\mathcal{H} (Enc_k(m_0)) = m_1)  \\ & =  \max_{m_1 \in \mathcal{M}} SSAdv + \epsilon.   \end{align*}
+
+But  $\max_{m_1 \in \mathcal{M}} SSAdv$ is a negligible function by the EAV assumption, thus completing the proof. Note there is a subtelty: a maximum of infinitely many negligible functions is not negligible, however here for each fixed security parameter $n$, we choose one such pair of messages $m_0(n), m_1(n)$ in polynomial time that maximizes this quantity, thus constructing a single adversary (remember $m_0(n)$ and $m_1(n)$ is part of the data of an adversary). 
+\end{proof}
+
+
 
 \end{document}
