@@ -222,7 +222,7 @@ We assume that our adversaries are also randomized algorithms running in Polynom
 \begin{mydef} An \textit{efficient adversary} to a computational encyrption scheme  $\Pi = (\operatorname{Gen}, \operatorname{Enc}, \operatorname{Dec})$ conists of, for each non-negative integer $n$, a tuple $(m_0(n), m_1(n), \mathcal{A}(n))$ satisfying the following.
 
 \begin{itemize}
-	\item Each $m_0(n),m_1(n)$ are messages in $\mathcal{M}$ computable in time polynomial in $n$ and of the same length.
+	\item Each $m_0(n),m_1(n)$ are messages in $\mathcal{M}$ of the same length and this length is polynomial in $n$.
 	\item For each $c \in \mathcal{C}$ we have that a random variable $\mathcal{A}(n)(c)$ that returns a random output in $\{0,1\}$ and it runs in polynomial time (it is polynomial in $\max\{n, |c|\}$).
 	\item If $\Pi$ is a fixed-length private-key encryption scheme of length $\ell(n)$, then $|m_0(n)|=|m_1(n)| = \ell(n)$.
 \end{itemize}
@@ -267,9 +267,9 @@ For instance $2^{-n}$ is negligible.
 
 In other words, we now do not require the adversary to be no better than a random guess, we just require it to be at most negligibly better than a random guess when running a polynomial time guessing algorithm. We denote the quantity above by  $$SSAdv^*(\mathcal{A}, \Pi) := \left | Pr(\operatorname{PrivK}_{\mathcal{A}, \Pi} = 1) - \frac{1}{2} \right |.$$ This notation is used by Boneh-Shoup and the $SSAdv^*$ refers to the term \textit{Semantic Security Advantage} of the adversary $\mathcal{A}$ for the encryption scheme $\Pi$. Semantic Security is another term for EAV security. We define $$SSAdv(\mathcal{A}, \Pi) = \left | Pr_{\operatorname{Exp}_0}(\mathcal{A} = 1) - Pr_{\operatorname{Exp}_1}(\mathcal{A} = 1) \right |. $$ It is easy to show that $$SSAdv^*(\mathcal{A}, \Pi) = \frac{1}{2} \cdot SSAdv(\mathcal{A}, \Pi),$$ thus we could use $SSAdv$ instead of $SSAdv^*$ in the definition of EAV-secure.
 
-\subsection{Some consequences of EAV-security}
+\section{Some consequences of EAV-security}
 
-Suppose that we have a computational encryption scheme $\Pi = (Gen, Enc, Dec)$ that is EAV-secure. Let us show that it cannot be hacked by an efficient hacker as follows. Suppose that $\mathcal{H}$ is the hacker's function that attempts to discover the original message $m$ based purely on the encrypted ciphertext $c$ . More formally, for each $c \in \mathcal{C}$ and security parameter $n$ we have a random variable $\mathcal{H}_n(c)$ that returns in polynomial time (polynomial in $n$ and $|c|$) an element in $\mathcal{M}$. Thus $\mathcal{H}_n(c)$ is what the hacker thinks is $m$, based on the encrypted ciphertext $c$ (the security parameter $n$ is public knowledege?). We can't expect $\mathcal{H}$ to never succeed, it could be a constant function $\mathcal{H}(c) = ``hello"$ independent of $c$ and thus it is a broken clock that is somtimes right, especially if $``hello"$ is a popular word. What we want is the probability of success to be very small for a random message $\mathcal{M}$ for any probability distribution on $\mathcal{M}$ that does not have very popular words (e.g., uniform across a large subset of $\mathcal{M}$).
+\subsection{Message recovery} Suppose that we have a computational encryption scheme $\Pi = (Gen, Enc, Dec)$ that is EAV-secure. Let us show that it cannot be hacked by an efficient hacker as follows. Suppose that $\mathcal{H}$ is the hacker's function that attempts to discover the original message $m$ based purely on the encrypted ciphertext $c$ . More formally, for each $c \in \mathcal{C}$ and security parameter $n$ we have a random variable $\mathcal{H}_n(c)$ that returns in polynomial time (polynomial in $n$ and $|c|$) an element in $\mathcal{M}$. Thus $\mathcal{H}_n(c)$ is what the hacker thinks is $m$, based on the encrypted ciphertext $c$ (the security parameter $n$ is public knowledege?). We can't expect $\mathcal{H}$ to never succeed, it could be a constant function $\mathcal{H}(c) = ``hello"$ independent of $c$ and thus it is a broken clock that is somtimes right, especially if $``hello"$ is a popular word. What we want is the probability of success to be very small for a random message $\mathcal{M}$ for any probability distribution on $\mathcal{M}$ that does not have very popular words (e.g., uniform across a large subset of $\mathcal{M}$).
 
 \begin{prop} Suppose that we have, for each security parameter $n$, a probability $P_{\mathcal{M}}$ on $\mathcal{M}$ that is supported on the $n$-encryptable messages and is samplable in time that is polynomial in $n$ (there is a polynomial time random algorithm generating this distribution). Let $\epsilon>0$ such that $P_{\mathcal{M}}(m) < \epsilon$ for all  $m \in \mathcal{M}$. Assuming that our encryption scheme is EAV-secure, we must have $$Pr(\mathcal{H}_n(Enc_k(m)) = m) < \epsilon + negl(n)$$ for some negligible function $negl$, where $n$ is the security parameter of the encryption scheme. 
 
@@ -289,6 +289,29 @@ We now integrate this bound over $m_1 \in \mathcal{M}$ to get
 
 But  $\max_{m_1 \in \mathcal{M}} SSAdv$ is a negligible function by the EAV assumption, thus completing the proof. Note there is a subtelty: a maximum of infinitely many negligible functions is not negligible, however here for each fixed security parameter $n$, we choose one such pair of messages $m_0(n), m_1(n)$ in polynomial time that maximizes this quantity, thus constructing a single adversary (remember $m_0(n)$ and $m_1(n)$ is part of the data of an adversary). 
 \end{proof}
+
+\subsection{Leaking information of a message} Let us suppose more generally now that our hacker does not want to recover the message, but just wants to know some properties of this message, which we define to be a function $f:\mathcal{M} \to \{0,1\}$. For example, can the hacker find the sum of bits mod 2? Of course the hacker can always guess and he may be right with probabilitiy $\frac{1}{2}$, but that's not really hacking. The next result shows that for an EAV-secure a computationally efficient (polynomial time) hacker cannot do much better than random guessing.
+
+\begin{prop} Let $\Pi = (Gen, Enc, Dec)$ be an EAV-secure encryption scheme and suppose that, for each fixed security parameter $n$, we have a probability distribution $P_{\mathcal{M}}$ supported on the $n$-encryptable messages. Let $f:\mathcal{M} \to \{0,1\}$ be any function and suppose that, for each security parameter $n$ and ciphertext $c \in \mathcal{C}$, we have a polynomial time random variable $\mathcal{H}_n(c)$ taking values in $\{0,1\}$ (polynomial time in $n$ and the length of the input from $\mathcal{C}$). Then there exists another polynomial time random variable $\mathcal{H}'_n$ (it does not depend on $c \in \mathcal{C}$) such that 
+
+$$| Pr(\mathcal{H}_n(Enc_k(m)) = f(m)) - Pr(\mathcal{H}'_n = f(m)) | \leq negl(n)$$ for some negligible function $negl$. Here the randomness in the first probability is in $m$ (due to $P_{\mathcal{M}}$) and the choice of key $k$, randomness of $Enc_k$ as well as the possible randomness of $\mathcal{H}_n(c)$ itself. In the second probability, all the randomness is in $m$ (due to $P_{\mathcal{M}}$) as well as $\mathcal{H}'_n$.
+
+\end{prop}
+
+\begin{proof} Fix any ($n$-encryptable) message $m_0$ and define $$\mathcal{H}'_n = \mathcal{H}_n(Enc_k(m_0)).$$ Thus $\mathcal{H}'_n$ is a random variable due to the randomness of the key $k$ and the random function $Enc_k$. Now define, for each message $m$ the adversary $(m_0, m_1, \mathcal{A}_{m_1})$ to be $$\mathcal{A}_{m_1}(c) = 1 - |\mathcal{H}_n(c) -  f(m_1)| \in \{0, 1\}.$$
+
+Observe that $$Pr_{Exp_1}(\mathcal{A}_{m_1} = 1) = Pr(\mathcal{H}_n(Enc_k(m_1)) -  f(m_1) = 0) =  Pr(\mathcal{H}_n(Enc_k(m_1)) =  f(m_1)). $$ 
+On the other hand $$Pr_{Exp_0}(\mathcal{A}_{m_1} = 1) = Pr(\mathcal{H}_n(Enc_k(m_0)) =  f(m_1)) = Pr(\mathcal{H}'_n = f(m_1)).$$
+
+Thus we have that $$ SSAdv(\mathcal{A}_{m_1}, \Pi) = | Pr(\mathcal{H}_n(Enc_k(m_1)) =  f(m_1)) - Pr(\mathcal{H}'_n = f(m_1)) |$$
+
+is a negligible function of $n$ for each fixed $m_1$. We now integrate this inequality over $m_1$ with respect to the distribution $P_{\mathcal{M}}$ to get the desired result. \end{proof}
+
+\begin{eg}[bit sum] Let $f:\{0,1\}^* \to \{0, 1\}$ denote the bit-sum of $m$ mod $2$. We apply the previous Proposition to this function. We suppose that our EAV scheme has fixed length $n$, i.e., all $n$-encryptable messages have length $n$. We suppose that $P_{\mathcal{M}}$ is the uniform distribution on $\{0,1\}^n$. Let $\mathcal{H}'_n$ be a random variable with values in $\{0,1\}$. Observe that if $m$ and $m'$ are two messages differing at exactly one bit, then they have different values for $f$ and so $$Pr(\mathcal{H}'_n = f(m)) + Pr(\mathcal{H}'_n = f(m')) = 1.$$ By pairing up all elements in $\{0,1\}^n$ into pairs that differ by just one bit, we see that  $$\frac{1}{2^n} \sum_{ m \in \{0,1\}^n} Pr(\mathcal{H}'_n = f(m)) = \frac{1}{2}.$$ Thus the above proposition says that that any randomized polynomial time hacker $\mathcal{H}:\mathcal{C} \to \{0,1\}$ that tries to guess $f(m)$ based on $\mathcal{H}(Enc_k(m))$ will only succeed with probability $\frac{1}{2} + negl(n)$.
+
+\end{eg}
+
+
 
 
 
